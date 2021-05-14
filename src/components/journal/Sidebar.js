@@ -6,7 +6,7 @@ import { startNewNote } from '../../actions/notes';
 import { JournalEntries } from './JournalEntries'
 
 export const Sidebar = () => {
-
+    //Se obtiene el dispatch de todos los reducers registrado en el store
     const dispatch = useDispatch();
 
     const { name } = useSelector( state => state.auth );

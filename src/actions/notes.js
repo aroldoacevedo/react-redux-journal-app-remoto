@@ -1,11 +1,12 @@
 import { types } from "../types/types";
 import { db } from '../firebase/firebase-config'
+import { loadNotes } from "../helpers/loadNotes";
 
 //ACTIONES
 // getState : es igual al useSelector
 export const startNewNote = (  ) => {
     return async(dispatch, getState) => {
-
+        //se obtiene el reducer auth
         const { uid } = getState().auth;
         
         const newNote = {
@@ -15,6 +16,28 @@ export const startNewNote = (  ) => {
         }
 
         const doc = await db.collection(`${ uid }/journal/notes`).add( newNote );
-        console.log(doc);
+    
+        dispatch(activeNote( doc.id, newNote ));
+    
     }
 }
+
+export const activeNote = (id, note) => ({
+    type : types.notesActive,
+    payload: {
+        id,
+        ...note
+    }
+})
+
+export const startLoadingNotes = ( uid ) => {
+    return async( dispatch ) => {
+        const notes = await loadNotes(uid);
+        dispatch(setNotes(notes));        
+    }
+}
+
+export const setNotes = ( notes ) => ({
+    type : types.notesLoad,
+    payload: notes
+})
