@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import { NoteAppBar } from './NoteAppBar'
 import { useForm } from '../../hooks/useForm';
-import { activeNote } from '../../actions/notes';
+import { activeNote, startDeleting } from '../../actions/notes';
 //Formulario que permite escribir la nota y adjuntar imagen
 export const NoteScreen = () => {
 
@@ -11,7 +11,7 @@ export const NoteScreen = () => {
     //active: nota activa
     const { active: note } = useSelector( state => state.notes );
     const [ formValues, handleInputChange, reset ] = useForm( note );
-    const { body, title, url } = formValues;
+    const { body, title, id } = formValues;
 
     const activeId = useRef( note.id )
 
@@ -32,6 +32,10 @@ export const NoteScreen = () => {
         dispatch(activeNote(formValues.id, { ...formValues }));
         
     }, [ formValues ], dispatch);
+
+    const handleDelete = () => {
+        dispatch(startDeleting(id));
+    }
     
     return (
         <div className="notes__main-content">
@@ -65,7 +69,7 @@ export const NoteScreen = () => {
                     &&
                     (<div className="notes__image">
                         <img
-                        src="https://image.freepik.com/foto-gratis/luz-madrugada-sentimiento-solitario_28981-314.jpg" 
+                        src={note.url}
                         alt="imagen"
                         />
                     </div>
@@ -73,6 +77,12 @@ export const NoteScreen = () => {
                 }
         
             </div>
+
+            <button 
+            className="btn btn-danger"
+            onClick= { handleDelete }>
+                Delete
+            </button>
 
         </div>
     )

@@ -3,6 +3,9 @@ import Swal from 'sweetalert2';
 import { types } from "../types/types";
 import { db } from '../firebase/firebase-config'
 import { loadNotes } from "../helpers/loadNotes";
+import { fileUpload } from '../helpers/fileUpload';
+
+//react-journal
 
 //ACTIONES
 // getState : es igual al useSelector
@@ -79,4 +82,41 @@ export const refreshNote = ( id, note ) =>({
     }
 })
 
+//start  : asincrona
+export const startUploading = ( file ) => {
+    return async( dispatch, getState ) => {
+        //active == note
+        const { active: activeNote } = getState().notes;
+        
+        Swal.fire({
+            title: 'Please Wait !',
+            html: 'data uploading',// add html attribute if you want or remove
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            onBeforeOpen: () => {
+                Swal.showLoading()
+            },
+        });
+        const fileUrl = await fileUpload(file);
+        activeNote.url = fileUrl;
+        dispatch(startSaveNote(activeNote));
 
+        Swal.close();
+    }
+}
+
+export const startDeleting = ( id ) =>{
+    return async( dispatch, getState ) => {
+
+        const uid = getState().auth.uid;
+        await db.doc(`${ uid }/journal/notes/${ id }`).delete();
+    
+        dispatch(deleteNote(id));
+    
+    }
+}
+
+export const deleteNote = ( id )=> ({
+    type: types.notesDelete,
+    payload: id
+})
