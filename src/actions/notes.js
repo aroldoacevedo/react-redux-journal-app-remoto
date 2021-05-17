@@ -1,3 +1,5 @@
+import Swal from 'sweetalert2';
+
 import { types } from "../types/types";
 import { db } from '../firebase/firebase-config'
 import { loadNotes } from "../helpers/loadNotes";
@@ -30,6 +32,7 @@ export const activeNote = (id, note) => ({
     }
 })
 
+//Se usa para la carga inicial
 export const startLoadingNotes = ( uid ) => {
     return async( dispatch ) => {
         const notes = await loadNotes(uid);
@@ -41,3 +44,39 @@ export const setNotes = ( notes ) => ({
     type : types.notesLoad,
     payload: notes
 })
+
+export const startSaveNote = ( note ) =>{
+    return async(dispatch, getState) => {
+
+        const { uid } = getState().auth;
+
+        if (!note.url){
+            delete note.url;
+        }
+
+        const noteToFirestores = { ...note};
+        delete noteToFirestores.id;
+
+        await db.doc(`${ uid }/journal/notes/${ note.id }`).update( noteToFirestores);
+    
+        dispatch(refreshNote( note.id, noteToFirestores ));
+        Swal.fire(
+            'Saved', note.title, 'success'
+        );
+   
+    }
+}
+
+//actualiza la nota directo del store
+export const refreshNote = ( id, note ) =>({
+    type: types.notesUpdated,
+    payload: {
+        id, 
+        note: {
+            id,
+            ...note
+        }
+    }
+})
+
+

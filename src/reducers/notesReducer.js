@@ -21,14 +21,14 @@ const initialState = {
 export const notesReducer = ( state = initialState, action ) => {
 
     switch (action.type) {
-
+        //Obtiene el estado actual
         case types.notesActive:
-            //clona el estado anterior
             return {
+                //clona el estado anterior
                 ...state,
                 //...action.payload es igual a payload = action.payload 
                 active : {
-                        ...action.payload
+                    ...action.payload
                 }
             }
 
@@ -37,6 +37,17 @@ export const notesReducer = ( state = initialState, action ) => {
             return {
                 ...state,
                 notes : [ ...action.payload]
+            }
+
+        case types.notesUpdated:
+            
+            return {
+                ...state,
+                notes: state.notes.map(
+                    note => note.id === action.payload.id
+                        ? action.payload.note  
+                        : note
+                )
             }
             
         default:
